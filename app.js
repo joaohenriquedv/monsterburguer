@@ -10,8 +10,8 @@ const FALLBACK_BURGER_IMAGE = "https://images.unsplash.com/photo-1568901346375-2
 
 const products = [
   {id:"classico",name:"Monster Clássico",category:"Hambúrgueres",price:29.90,description:"Pão brioche, burger 180g, queijo cheddar, alface, tomate e molho da casa.",badge:"O QUERIDINHO",image:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=82"},
-  {id:"duplo",name:"Duplo Monstro",category:"Hambúrgueres",price:38.90,description:"Dois burgers  smash, cheddar em dobro, cebola caramelizada e molho especial.",badge:"BEM SERVIDO",image:FALLBACK_BURGER_IMAGE},
-  {id:"bacon",name:"Bacon Brabo",category:"Hambúrgueres",price:34.90,description:"Burger 180g, cheddar, bacon crocante, picles e maionese defumada.",badge:"MAIS PEDIDO",image:FALLBACK_BURGER_IMAGE},
+  {id:"duplo",name:"Duplo Monstro",category:"Hambúrgueres",price:38.90,description:"Dois burgers  smash, cheddar em dobro, cebola caramelizada e molho especial.",badge:"BEM SERVIDO",image:"https://images.unsplash.com/photo-1607013251379-e6eecfffe234?auto=format&fit=crop&w=900&q=82"},
+  {id:"bacon",name:"Bacon Brabo",category:"Hambúrgueres",price:34.90,description:"Burger 180g, cheddar, bacon crocante, picles e maionese defumada.",badge:"MAIS PEDIDO",image:"https://images.unsplash.com/photo-1619810816144-68dbc1f695e8?auto=format&fit=crop&w=900&q=82"},
   {id:"crispy",name:"Crispy Chicken",category:"Hambúrgueres",price:31.90,description:"Frango crocante, queijo, coleslaw fresquinha e molho levemente picante.",badge:"CROCANTE",image:"https://images.unsplash.com/photo-1606755962773-d324e0a13086?auto=format&fit=crop&w=900&q=82"},
   {id:"fritas",name:"Fritas da Casa",category:"Acompanhamentos",price:14.90,description:"Porção dourada e crocante, com sal da casa. Boa para dividir (ou não).",badge:"ACOMPANHA TUDO",image:"https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=900&q=82"},
   {id:"onion",name:"Onion Rings",category:"Acompanhamentos",price:17.90,description:"Anéis de cebola empanados, sequinhos e servidos com molho especial.",badge:"CROCÂNCIA",image:FALLBACK_BURGER_IMAGE},
