@@ -1,6 +1,8 @@
 // Cardápio inicial de demonstração. Edite os produtos e preços nesta lista.
-// Configure o telefone da loja no formato internacional, somente números: 55 + DDD + número.
-const WHATSAPP_NUMBER = "";
+// Configure os contatos reais da loja antes da publicação.
+// WhatsApp: somente números, com DDI e DDD (ex.: 5585999999999).
+const STORE_WHATSAPP = "5581985433573";
+const STORE_EMAIL = "";
 
 const products = [
   {id:"classico",name:"Monster Clássico",category:"Hambúrgueres",price:29.90,description:"Pão brioche, burger 180g, queijo cheddar, alface, tomate e molho da casa.",badge:"O QUERIDINHO",image:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=82"},
@@ -71,12 +73,50 @@ function updateCart(){
   lastCartQuantity = quantity;
   document.querySelector("#cart-items").innerHTML = entries.map(([id, count]) => {
     const product = products.find(item => item.id === id);
-    return `<div class="cart-line"><div><h3>${product.name}</h3><div class="cart-line-sub">${money(product.price)} cada</div></div><b class="cart-line-price">${money(product.price * count)}</b><div class="quantity-control"><button type="button" aria-label="Remover um ${product.name}" data-change="${id}" data-delta="-1">−</button><span>${count}</span><button type="button" aria-label="Adicionar um ${product.name}" data-change="${id}" data-delta="1">+</button></div></div>`;
+    return `<div class="cart-line"><div class="cart-thumb" style="background-image:url('${product.image}')" role="img" aria-label="${product.name}"></div><div class="cart-product"><h3>${product.name}</h3><div class="cart-line-sub">${money(product.price)} cada</div></div><b class="cart-line-price">${money(product.price * count)}</b><div class="quantity-control"><button type="button" aria-label="Remover um ${product.name}" data-change="${id}" data-delta="-1">−</button><span>${count}</span><button type="button" aria-label="Adicionar um ${product.name}" data-change="${id}" data-delta="1">+</button></div></div>`;
   }).join("");
   document.querySelector("#cart-empty").hidden = quantity > 0;
   document.querySelector("#cart-bottom").hidden = quantity === 0;
   document.querySelector("#cart-subtotal").textContent = money(subtotal);
   document.querySelector("#checkout-total").textContent = money(subtotal);
+}
+
+function updatePaymentDetails(){
+  const selected = document.querySelector('[name="pagamento"]:checked')?.value;
+  const details = {
+    Pix: "A chave Pix será informada pelo restaurante após confirmar o pedido. Este site não cobra online.",
+    "Cartão na entrega": "Confirme com a loja se a maquininha está disponível para seu endereço.",
+    Dinheiro: "O pagamento será feito na entrega. Se precisar de troco, informe o valor abaixo."
+  };
+  document.querySelector("#payment-info").textContent = details[selected] || "O restaurante confirma a forma de pagamento. Nenhuma cobrança é feita neste site.";
+  document.querySelector("#change-field").hidden = selected !== "Dinheiro";
+  document.querySelectorAll(".payment-option").forEach(option => {
+    option.classList.toggle("selected", option.querySelector("input").checked);
+  });
+}
+
+function updateSendMethods(){
+  const whatsapp = /^\d{12,13}$/.test(STORE_WHATSAPP);
+  const email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(STORE_EMAIL);
+  const whatsappButton = document.querySelector("#send-whatsapp");
+  const emailButton = document.querySelector("#send-email");
+  whatsappButton.hidden = !whatsapp && email;
+  emailButton.hidden = !email;
+
+  if (whatsapp) {
+    whatsappButton.value = "whatsapp";
+    whatsappButton.classList.add("button-primary");
+    whatsappButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.7a8.4 8.4 0 0 1-12.4 7.4L3 20.5l1.5-4.9a8.4 8.4 0 1 1 16-3.9Z"/><path d="M8.3 8.2c.5 2.6 2.4 4.5 5 5l1-1 2 .9c.3.1.4.4.3.7-.3.8-1.1 1.3-2 1.3-3.6-.3-6.5-3.2-6.8-6.8 0-.9.5-1.7 1.3-2 .3-.1.6 0 .7.3l.9 2-1 .9Z"/></svg>ENVIAR PELO WHATSAPP <span>↗</span>';
+  } else if (email) {
+    whatsappButton.hidden = true;
+    emailButton.classList.add("button", "button-primary", "checkout-button");
+    emailButton.textContent = "ENVIAR POR E-MAIL ↗";
+  } else {
+    whatsappButton.hidden = false;
+    whatsappButton.value = "preview";
+    whatsappButton.classList.add("button-primary");
+    whatsappButton.innerHTML = 'GERAR PRÉVIA DO PEDIDO <span>↗</span>';
+  }
 }
 
 function openCart(){
@@ -149,22 +189,54 @@ document.querySelector("#back-to-menu").addEventListener("click", closeCart);
 document.querySelector("#checkout-button").addEventListener("click", () => document.querySelector("#checkout-dialog").showModal());
 document.querySelector("#close-checkout").addEventListener("click", () => document.querySelector("#checkout-dialog").close());
 document.querySelector("#checkout-dialog").addEventListener("click", event => { if (event.target === event.currentTarget) event.currentTarget.close(); });
+document.querySelector("#continue-shopping").addEventListener("click", closeCart);
+document.querySelectorAll('[name="pagamento"]').forEach(option => option.addEventListener("change", updatePaymentDetails));
+document.querySelector("#close-preview").addEventListener("click", () => document.querySelector("#order-preview-dialog").close());
+document.querySelector("#close-preview-secondary").addEventListener("click", () => document.querySelector("#order-preview-dialog").close());
+document.querySelector("#order-preview-dialog").addEventListener("click", event => { if (event.target === event.currentTarget) event.currentTarget.close(); });
+document.querySelector("#copy-order").addEventListener("click", async () => {
+  const text = document.querySelector("#order-preview-text").textContent;
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const temporary = document.createElement("textarea");
+    temporary.value = text;
+    temporary.setAttribute("readonly", "");
+    temporary.style.position = "fixed";
+    temporary.style.opacity = "0";
+    document.body.append(temporary);
+    temporary.select();
+    document.execCommand("copy");
+    temporary.remove();
+  }
+  showToast("Prévia do pedido copiada.");
+});
 
 document.querySelector("#checkout-form").addEventListener("submit", event => {
   event.preventDefault();
   if (!cart.size) return;
-  if (!/^\d{12,13}$/.test(WHATSAPP_NUMBER)) {
-    showToast("Adicione o WhatsApp do restaurante no arquivo app.js para receber pedidos.");
-    return;
-  }
   const data = new FormData(event.currentTarget);
   const lines = [...cart.entries()].map(([id, count]) => {
     const product = products.find(item => item.id === id);
     return `• ${count}x ${product.name} — ${money(product.price * count)}`;
   });
   const subtotal = [...cart.entries()].reduce((sum, [id, count]) => sum + products.find(item => item.id === id).price * count, 0);
-  const message = ["Olá! Quero fazer este pedido:", "", ...lines, "", `Subtotal dos itens: ${money(subtotal)}`, `Nome: ${data.get("nome")}`, `Telefone: ${data.get("telefone")}`, `Endereço: ${data.get("endereco")}`, `Pagamento: ${data.get("pagamento")}`, data.get("observacao") ? `Observação: ${data.get("observacao")}` : ""].filter(Boolean).join("\n");
-  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+  const payment = data.get("pagamento");
+  const change = payment === "Dinheiro" && data.get("troco") ? `Troco para: R$ ${data.get("troco")}` : "";
+  const message = ["Olá! Quero fazer este pedido:", "", ...lines, "", `Subtotal dos itens: ${money(subtotal)}`, "Entrega: confirmar com o restaurante", `Nome: ${data.get("nome")}`, `Telefone: ${data.get("telefone")}`, `Endereço: ${data.get("endereco")}`, `Pagamento escolhido: ${payment}`, change, data.get("observacao") ? `Observação: ${data.get("observacao")}` : ""].filter(Boolean).join("\n");
+  const channel = event.submitter?.value;
+  if (channel === "whatsapp" && /^\d{12,13}$/.test(STORE_WHATSAPP)) {
+    window.open(`https://wa.me/${STORE_WHATSAPP}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+    showToast("Revise o pedido no WhatsApp e toque em Enviar.");
+    return;
+  }
+  if (channel === "email" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(STORE_EMAIL)) {
+    window.location.href = `mailto:${STORE_EMAIL}?subject=${encodeURIComponent("Novo pedido — Monster Burguer")}&body=${encodeURIComponent(message)}`;
+    return;
+  }
+  document.querySelector("#order-preview-text").textContent = message;
+  document.querySelector("#checkout-dialog").close();
+  document.querySelector("#order-preview-dialog").showModal();
 });
 
 document.querySelector('[name="telefone"]').addEventListener("input", event => {
@@ -200,3 +272,5 @@ document.querySelector("#year").textContent = new Date().getFullYear();
 renderCategories();
 renderProducts();
 updateCart();
+updatePaymentDetails();
+updateSendMethods();

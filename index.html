@@ -58,7 +58,7 @@
       <div class="cart-head"><div><span class="eyebrow">SEU PEDIDO</span><h2>SACOLA<span>.</span></h2></div><button class="icon-button" id="close-cart" type="button" aria-label="Fechar sacola">×</button></div>
       <div class="cart-items" id="cart-items"></div>
       <div class="cart-empty" id="cart-empty"><div class="empty-burger">🍔</div><b>Sua sacola está vazia</b><span>Escolha um Monster do cardápio.</span><button class="button button-primary" id="back-to-menu" type="button">VER CARDÁPIO</button></div>
-      <div class="cart-bottom" id="cart-bottom" hidden><div class="subtotal-line"><span>Subtotal</span><b id="cart-subtotal">R$ 0,00</b></div><p class="delivery-note">Entrega calculada pelo restaurante na confirmação.</p><button class="button button-primary checkout-button" id="checkout-button" type="button">CONTINUAR PEDIDO <span>→</span></button></div>
+      <div class="cart-bottom" id="cart-bottom" hidden><div class="subtotal-line"><span>Subtotal dos itens</span><b id="cart-subtotal">R$ 0,00</b></div><div class="delivery-line"><span>Entrega</span><span>A confirmar</span></div><p class="delivery-note">A loja confirma a taxa e o prazo antes de preparar.</p><button class="button button-primary checkout-button" id="checkout-button" type="button">CONTINUAR PEDIDO <span>→</span></button><button class="continue-shopping" id="continue-shopping" type="button">← Continuar escolhendo</button></div>
     </aside>
 
     <dialog class="checkout-dialog" id="checkout-dialog">
@@ -67,13 +67,19 @@
         <label>Seu nome<input name="nome" autocomplete="name" required maxlength="70" placeholder="Como podemos te chamar?" /></label>
         <label>Telefone<input name="telefone" type="tel" autocomplete="tel" required maxlength="20" placeholder="(00) 00000-0000" /></label>
         <label>Endereço de entrega<textarea name="endereco" autocomplete="street-address" required maxlength="180" rows="2" placeholder="Rua, número, bairro e complemento"></textarea></label>
-        <label>Forma de pagamento<select name="pagamento" required><option value="">Selecione</option><option>Pix</option><option>Cartão na entrega</option><option>Dinheiro</option></select></label>
+        <fieldset class="payment-fieldset"><legend>Como prefere pagar?</legend><div class="payment-options">
+          <label class="payment-option"><input type="radio" name="pagamento" value="Pix" required /><span class="payment-icon pix-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7.1 3.5 2.7 7.9a2.2 2.2 0 0 0 0 3.1l8.2 8.2a1.6 1.6 0 0 0 2.2 0l8.2-8.2a2.2 2.2 0 0 0 0-3.1l-4.4-4.4a2.2 2.2 0 0 0-3.1 0L12 7.5 10.2 5.7a2.2 2.2 0 0 0-3.1 0Z"/><path d="m8.1 8.4 3.9 3.9 3.9-3.9M8.1 15.6l3.9-3.3 3.9 3.3"/></svg></span><span class="payment-copy"><b>Pix</b><small>Combinar com a loja</small></span><span class="payment-check"></span></label>
+          <label class="payment-option"><input type="radio" name="pagamento" value="Cartão na entrega" required /><span class="payment-icon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/></svg></span><span class="payment-copy"><b>Cartão</b><small>Na entrega</small></span><span class="payment-check"></span></label>
+          <label class="payment-option"><input type="radio" name="pagamento" value="Dinheiro" required /><span class="payment-icon"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 9h.01M18 15h.01"/></svg></span><span class="payment-copy"><b>Dinheiro</b><small>Na entrega</small></span><span class="payment-check"></span></label>
+        </div><p class="payment-info" id="payment-info">O restaurante confirma a forma de pagamento. Nenhuma cobrança é feita neste site.</p></fieldset>
+        <label class="change-field" id="change-field" hidden>Troco para quanto? <span class="optional">(opcional)</span><input name="troco" inputmode="decimal" placeholder="Ex.: 50,00" /></label>
         <label>Observação <span class="optional">(opcional)</span><textarea name="observacao" maxlength="180" rows="2" placeholder="Ponto da carne, sem cebola…"></textarea></label>
         <div class="checkout-total"><span>Total dos itens</span><b id="checkout-total">R$ 0,00</b></div>
-        <p class="checkout-notice">Seu pedido será enviado ao restaurante para confirmação. A taxa de entrega e o prazo serão confirmados por lá.</p>
-        <button class="button button-primary checkout-button" type="submit">ENVIAR PEDIDO <span>↗</span></button>
+        <p class="checkout-notice">A taxa de entrega e o prazo serão confirmados pelo restaurante. O envio do pedido não realiza pagamento.</p>
+        <div class="send-methods" id="send-methods"><button class="button button-primary checkout-button" type="submit" name="canal" value="whatsapp" id="send-whatsapp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.7a8.4 8.4 0 0 1-12.4 7.4L3 20.5l1.5-4.9a8.4 8.4 0 1 1 16-3.9Z"/><path d="M8.3 8.2c.5 2.6 2.4 4.5 5 5l1-1 2 .9c.3.1.4.4.3.7-.3.8-1.1 1.3-2 1.3-3.6-.3-6.5-3.2-6.8-6.8 0-.9.5-1.7 1.3-2 .3-.1.6 0 .7.3l.9 2-1 .9Z"/></svg>ENVIAR PELO WHATSAPP <span>↗</span></button><button class="email-order-button" type="submit" name="canal" value="email" id="send-email"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg> Enviar por e-mail</button></div>
       </form>
     </dialog>
+    <dialog class="order-preview-dialog" id="order-preview-dialog"><div class="preview-card"><button class="icon-button preview-close" id="close-preview" type="button" aria-label="Fechar">×</button><div class="preview-check">✓</div><span class="eyebrow">PRÉVIA DO PEDIDO</span><h2>ESTÁ QUASE<span>.</span></h2><p class="preview-explainer">Os contatos da loja ainda não foram configurados. Você pode revisar e copiar esta mensagem para a demonstração.</p><pre id="order-preview-text"></pre><div class="preview-actions"><button class="button button-primary" id="copy-order" type="button">COPIAR PEDIDO</button><button class="continue-shopping" id="close-preview-secondary" type="button">Voltar ao site</button></div></div></dialog>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
   </body>
 </html>

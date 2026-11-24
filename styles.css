@@ -33,3 +33,53 @@
 @keyframes scribble-float{0%,100%{translate:0 0;rotate:-13deg}50%{translate:2px -5px;rotate:-9deg}}
 @keyframes cart-bump{0%,100%{transform:scale(1)}45%{transform:scale(1.28)}}
 @media(prefers-reduced-motion:reduce){.hero-image,.hero-glow,.hero-tag,.hero-scribble,.product-card.reveal,.add-button,.cart-count{animation:none!important;transition:none!important}.product-card.reveal{opacity:1;transform:none}}
+
+/* Sacola visual e opções de pagamento para a finalização do pedido. */
+.cart-line{grid-template-columns:54px minmax(0,1fr) auto;align-items:center;column-gap:11px}
+.cart-thumb{grid-column:1;grid-row:1/3;width:54px;height:54px;border-radius:7px;background-color:#e9ded2;background-size:cover;background-position:center}
+.cart-product{min-width:0}
+.cart-product h3{font-size:18px}
+.cart-line-price{grid-column:3;grid-row:1;align-self:start;padding-top:3px}
+.quantity-control{grid-column:2/4;gap:10px;margin-top:2px}
+.quantity-control button{font-size:17px;color:var(--ink)}
+.delivery-line{display:flex;justify-content:space-between;margin-top:9px;color:var(--muted);font-size:10px}
+.continue-shopping{border:0;background:none;color:#72695e;padding:10px 8px;font-size:10px;font-weight:700;cursor:pointer}
+.continue-shopping:hover{color:var(--orange-dark)}
+.checkout-form{gap:12px}
+.payment-fieldset{border:0;padding:0;margin:1px 0 0;min-width:0}
+.payment-fieldset legend{margin-bottom:8px;font-size:10px;font-weight:800}
+.payment-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.payment-option{position:relative;min-width:0;min-height:89px;padding:10px;border:1px solid var(--line);border-radius:7px;background:#fff;display:flex;flex-direction:column;align-items:flex-start;gap:6px;cursor:pointer;transition:border-color .18s,background .18s,transform .18s}
+.payment-option:hover{border-color:#e8b38f;transform:translateY(-1px)}
+.payment-option.selected{border-color:var(--orange);background:#fff7f0;box-shadow:0 0 0 1px #f4772522}
+.payment-option input{position:absolute;opacity:0;inset:0;width:100%;height:100%;cursor:pointer}
+.payment-option input:focus-visible~.payment-check{outline:2px solid var(--orange);outline-offset:2px}
+.payment-icon{height:25px;width:25px;display:grid;place-items:center;color:#6d665e}
+.payment-icon svg,.send-methods svg,.email-order-button svg{height:21px;width:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.pix-icon{color:#179c75}
+.payment-copy{display:flex;flex-direction:column;gap:2px;line-height:1.15}
+.payment-copy b{font-size:10px}
+.payment-copy small{color:var(--muted);font-size:8px;line-height:1.2}
+.payment-check{position:absolute;right:7px;top:7px;width:13px;height:13px;border:1px solid #d9d1c7;border-radius:50%;pointer-events:none}
+.payment-option.selected .payment-check{border-color:var(--orange);background:var(--orange);box-shadow:inset 0 0 0 3px #fff}
+.payment-info{margin:8px 0 0;color:var(--muted);font-size:9px;line-height:1.5}
+.change-field[hidden],.send-methods [hidden]{display:none!important}
+.send-methods{display:flex;flex-direction:column;gap:7px}
+.send-methods .checkout-button{width:100%}
+.send-methods svg{height:17px;width:17px;flex:0 0 auto}
+.send-methods .button{gap:9px;padding:0 12px;font-size:9px}
+.email-order-button{min-height:40px;border:1px solid var(--line);border-radius:5px;background:#fff;color:#625b53;display:flex;align-items:center;justify-content:center;gap:8px;font-size:10px;font-weight:800;cursor:pointer}
+.email-order-button:hover{border-color:#d8b89f;background:#fffaf5}
+.email-order-button.button{min-height:48px}
+.order-preview-dialog{width:min(480px,calc(100% - 24px));max-height:90dvh;padding:0;border:0;border-radius:10px;background:var(--white);color:var(--ink);box-shadow:0 28px 100px #0005;overflow:auto}
+.order-preview-dialog::backdrop{background:#100d0bd0;backdrop-filter:blur(3px)}
+.preview-card{position:relative;padding:30px}
+.preview-close{position:absolute;right:18px;top:18px}
+.preview-check{height:40px;width:40px;margin-bottom:15px;border-radius:50%;display:grid;place-items:center;background:#e9f2e4;color:#4a783e;font-size:21px}
+.preview-card h2{font:700 33px/1 var(--heading);margin:8px 0 10px}
+.preview-card h2 span{color:var(--orange)}
+.preview-explainer{color:var(--muted);font-size:10px;line-height:1.6}
+#order-preview-text{max-height:220px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;margin:16px 0;padding:13px;border-radius:6px;background:#f4f0e9;color:#514a42;font:10px/1.65 var(--body)}
+.preview-actions{display:flex;flex-direction:column;gap:5px}
+.preview-actions .button{width:100%}
+@media(max-width:480px){.cart-line{grid-template-columns:46px minmax(0,1fr) auto;column-gap:9px}.cart-thumb{width:46px;height:46px}.cart-product h3{font-size:17px}.payment-options{gap:6px}.payment-option{padding:9px 7px;min-height:86px}.payment-copy small{font-size:7px}.preview-card{padding:26px 20px}}
