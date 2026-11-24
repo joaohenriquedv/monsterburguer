@@ -100,3 +100,9 @@
 .copy-pix-button svg{height:15px;width:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .pix-pending-note{margin:10px 0 0;color:#8b6b40;font-size:8px;line-height:1.45}
 @media(max-width:420px){.pix-payment-box{padding:10px}.pix-content{grid-template-columns:1fr;justify-items:center}.pix-details{width:100%}.pix-qr-code{width:154px;height:154px}.pix-qr-code img,.pix-qr-code canvas{max-width:142px;max-height:142px}}
+.product-image{overflow:hidden}
+.product-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .35s ease}
+.product-card:hover .product-photo{transform:scale(1.035)}
+.product-image.image-fallback{display:grid;place-items:center;background:radial-gradient(circle at 50% 45%,#503c2c,#241e19 70%)}
+.product-image.image-fallback:before{content:"🍽️";position:absolute;z-index:2;font-size:68px;filter:drop-shadow(0 9px 14px #0008)}
+.product-image.image-fallback .product-photo{display:none}

@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: monster-burguer
+    runtime: static
+    buildCommand: node build.js
+    staticPublishPath: ./dist

@@ -44,8 +44,11 @@ function renderCategories(){
 
 function renderProducts(){
   const visible = products.filter(product => (selectedCategory === "Todos" || product.category === selectedCategory) && `${product.name} ${product.description} ${product.category}`.toLocaleLowerCase("pt-BR").includes(searchTerm));
-  menuGrid.innerHTML = visible.map(product => `<article class="product-card"><div class="product-image" style="background-image:url('${product.image}')" role="img" aria-label="${product.name}"><span class="product-badge">${product.badge}</span></div><div class="product-body"><div class="product-title-line"><h3 class="product-title">${product.name}</h3><span class="product-price">${money(product.price)}</span></div><p class="product-description">${product.description}</p><div class="product-foot"><span class="product-time">Feito na hora</span><button class="add-button" type="button" data-add="${product.id}">+ ADICIONAR</button></div></div></article>`).join("");
+  menuGrid.innerHTML = visible.map(product => `<article class="product-card"><div class="product-image"><img class="product-photo" src="${product.image}" alt="${product.name}" loading="lazy"><span class="product-badge">${product.badge}</span></div><div class="product-body"><div class="product-title-line"><h3 class="product-title">${product.name}</h3><span class="product-price">${money(product.price)}</span></div><p class="product-description">${product.description}</p><div class="product-foot"><span class="product-time">Feito na hora</span><button class="add-button" type="button" data-add="${product.id}">+ ADICIONAR</button></div></div></article>`).join("");
   document.querySelector("#empty-state").hidden = visible.length > 0;
+  menuGrid.querySelectorAll(".product-photo").forEach(image => {
+    image.addEventListener("error", () => image.closest(".product-image").classList.add("image-fallback"), {once: true});
+  });
   if ("IntersectionObserver" in window && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
