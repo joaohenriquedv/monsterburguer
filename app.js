@@ -1,7 +1,7 @@
 // Cardápio inicial de demonstração. Edite os produtos e preços nesta lista.
 // Configure os contatos reais da loja antes da publicação.
 // WhatsApp: somente números, com DDI e DDD (ex.: 5585999999999).
-const STORE_WHATSAPP = "5581985433573";
+const STORE_WHATSAPP = "5581989071780";
 const STORE_EMAIL = "";
 
 const products = [
