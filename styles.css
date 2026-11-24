@@ -106,3 +106,16 @@
 .product-image.image-fallback{background:linear-gradient(135deg,#503c2c,#241e19 70%)}
 .product-image.image-fallback:before{content:"";position:absolute;inset:0;z-index:2;background:url("https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=82") center/cover no-repeat}
 .product-image.image-fallback .product-photo{display:none}
+
+/* Sacola mais evidente no celular e cálculo da estimativa de entrega. */
+.bag-icon{display:flex;align-items:center;justify-content:center}
+.bag-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.delivery-calculator{display:flex;flex-direction:column;gap:8px;padding:11px;border:1px solid var(--line);border-radius:7px;background:#fffaf5}
+.map-consent{display:flex;align-items:flex-start;gap:8px;color:#625b53;font-size:9px;line-height:1.5}
+.map-consent input{width:15px;height:15px;flex:0 0 auto;margin:1px 0 0;accent-color:var(--orange)}
+.calculate-delivery{min-height:40px;background:var(--ink);color:white}
+.calculate-delivery:hover{background:#302720}
+.calculate-delivery:disabled{opacity:.6;cursor:wait}
+.delivery-estimate-status{margin:0;color:#625b53;font-size:9px;line-height:1.55}
+.map-attribution{color:var(--muted);font-size:8px}
+@media(max-width:640px){.cart-trigger{height:41px;padding:0 11px;gap:7px;border:0;border-radius:8px;background:var(--orange);color:#fff;box-shadow:0 4px 12px #f4772535}.cart-trigger:hover{background:var(--orange-dark);border-color:var(--orange-dark)}.cart-trigger-label{display:inline;font-size:11px;font-weight:800}.bag-icon svg{width:18px;height:18px}.cart-count{background:var(--ink);color:#fff;min-width:19px;height:19px}.delivery-calculator{padding:10px}.map-consent{font-size:10px}.delivery-estimate-status{font-size:10px}}

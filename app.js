@@ -1,11 +1,14 @@
 // Cardápio inicial de demonstração. Edite os produtos e preços nesta lista.
 // Configure os contatos reais da loja antes da publicação.
 // WhatsApp: somente números, com DDI e DDD (ex.: 5585999999999).
-const STORE_WHATSAPP = "5581989071780";
+const STORE_WHATSAPP = "5581986928231";
 const STORE_EMAIL = "";
 const PIX_KEY = "12781011444";
 const PIX_RECEIVER_NAME = "MONSTER BURGUER";
 const PIX_RECEIVER_CITY = "BRASIL";
+const STORE_ADDRESS = "Rua 93, 139, Maranguape I, Paulista, Pernambuco, Brasil";
+const DELIVERY_BASE_FEE = 4;
+const DELIVERY_FEE_PER_KM = 2;
 const FALLBACK_BURGER_IMAGE = "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=82";
 
 const products = [
@@ -17,7 +20,11 @@ const products = [
   {id:"onion",name:"Onion Rings",category:"Acompanhamentos",price:17.90,description:"Anéis de cebola empanados, sequinhos e servidos com molho especial.",badge:"CROCÂNCIA",image:FALLBACK_BURGER_IMAGE},
   {id:"refri",name:"Refrigerante",category:"Bebidas",price:7.00,description:"Lata gelada 350ml. Escolha seu sabor na observação do pedido.",badge:"BEM GELADO",image:"https://images.unsplash.com/photo-1629203851122-3726ecdf080e?auto=format&fit=crop&w=900&q=82"},
   {id:"milkshake",name:"Milk-shake",category:"Bebidas",price:18.90,description:"Cremoso, feito na hora. Consulte os sabores disponíveis.",badge:"CREMOSO",image:"https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=900&q=82"},
-  {id:"combo",name:"Combo Monster",category:"Combos",price:45.90,description:"Monster Clássico, fritas da casa e refrigerante lata. O trio perfeito.",badge:"COMBO",image:"https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=900&q=82"}
+  {id:"combo",name:"Combo Monster",category:"Combos",price:45.90,description:"Monster Clássico, fritas da casa e refrigerante lata. O trio perfeito.",badge:"COMBO",image:"https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=900&q=82"},
+  {id:"hotdog",name:"Cachorro-Quente da Casa",category:"Lanches",price:19.90,description:"Pão macio, salsicha, molho da casa, queijo e batata palha.",badge:"CHEGOU AGORA",image:"https://images.unsplash.com/photo-1599599810694-b5b37304c041?auto=format&fit=crop&w=900&q=82"},
+  {id:"acai",name:"Açaí 500 ml",category:"Açaí",price:22.90,description:"Açaí cremoso com banana e granola. Escolha complementos na observação.",badge:"GELADINHO",image:"https://images.unsplash.com/photo-1627308594190-a057cd4bfac8?auto=format&fit=crop&w=900&q=82"},
+  {id:"pizza-calabresa",name:"Pizza de Calabresa",category:"Pizzas",price:42.90,description:"Massa artesanal, molho de tomate, muçarela e calabresa. Tamanho família.",badge:"PIZZA FAMÍLIA",image:"https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=900&q=82"},
+  {id:"pizza-queijos",name:"Pizza Quatro Queijos",category:"Pizzas",price:47.90,description:"Muçarela, provolone, parmesão e gorgonzola. Tamanho família.",badge:"QUATRO QUEIJOS",image:"https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=900&q=82"}
 ];
 
 const money = value => value.toLocaleString("pt-BR", {style:"currency",currency:"BRL"});
@@ -29,6 +36,7 @@ try {
   savedCart = [];
 }
 const cart = new Map(savedCart);
+let deliveryEstimate = null;
 let selectedCategory = "Todos";
 let searchTerm = "";
 const menuGrid = document.querySelector("#menu-grid");
@@ -92,8 +100,58 @@ function updateCart(){
   document.querySelector("#cart-empty").hidden = quantity > 0;
   document.querySelector("#cart-bottom").hidden = quantity === 0;
   document.querySelector("#cart-subtotal").textContent = money(subtotal);
-  document.querySelector("#checkout-total").textContent = money(subtotal);
-  if (document.querySelector('[name="pagamento"]:checked')?.value === "Pix") renderPixPayment(subtotal);
+  document.querySelector("#delivery-fee").textContent = deliveryEstimate ? money(deliveryEstimate.fee) : "Calcular no checkout";
+  document.querySelector("#checkout-total").textContent = money(subtotal + (deliveryEstimate?.fee || 0));
+  if (document.querySelector('[name="pagamento"]:checked')?.value === "Pix") renderPixPayment(subtotal + (deliveryEstimate?.fee || 0));
+}
+
+const wait = milliseconds => new Promise(resolve => window.setTimeout(resolve, milliseconds));
+
+async function geocodeAddress(address){
+  const params = new URLSearchParams({format:"jsonv2", limit:"1", countrycodes:"br", q:address});
+  const response = await fetch(`https://nominatim.openstreetmap.org/search?${params}`);
+  if (!response.ok) throw new Error("Não foi possível consultar o mapa agora.");
+  const results = await response.json();
+  if (!results.length) throw new Error("Não encontrei esse endereço. Confira rua, número e bairro.");
+  return {lat:Number(results[0].lat), lon:Number(results[0].lon)};
+}
+
+async function calculateDelivery(){
+  const address = document.querySelector('[name="endereco"]').value.trim();
+  const consent = document.querySelector("#address-map-consent").checked;
+  const status = document.querySelector("#delivery-estimate-status");
+  if (address.length < 8){ status.textContent = "Preencha rua, número e bairro para calcular."; return; }
+  if (!consent){ status.textContent = "Marque a autorização para consultar o endereço no mapa."; return; }
+  const button = document.querySelector("#calculate-delivery");
+  button.disabled = true;
+  button.textContent = "CALCULANDO…";
+  status.textContent = "Consultando a rota para estimar a entrega…";
+  try {
+    let origin;
+    try { origin = JSON.parse(sessionStorage.getItem("monster-store-coordinates") || "null"); } catch { origin = null; }
+    if (!origin) {
+      origin = await geocodeAddress(STORE_ADDRESS);
+      try { sessionStorage.setItem("monster-store-coordinates", JSON.stringify(origin)); } catch { /* O cálculo continua sem cache. */ }
+      await wait(1100);
+    }
+    const destination = await geocodeAddress(`${address}, Paulista, Pernambuco, Brasil`);
+    const routeResponse = await fetch(`https://router.project-osrm.org/route/v1/driving/${origin.lon},${origin.lat};${destination.lon},${destination.lat}?overview=false`);
+    if (!routeResponse.ok) throw new Error("Não foi possível calcular a rota agora.");
+    const routeData = await routeResponse.json();
+    if (routeData.code !== "Ok" || !routeData.routes?.length) throw new Error("Não encontrei uma rota de entrega para esse endereço.");
+    const distanceKm = routeData.routes[0].distance / 1000;
+    const fee = Math.max(5, Math.ceil((DELIVERY_BASE_FEE + distanceKm * DELIVERY_FEE_PER_KM) * 2) / 2);
+    deliveryEstimate = {address, distanceKm, fee};
+    status.textContent = `Estimativa: ${distanceKm.toLocaleString("pt-BR", {maximumFractionDigits:1})} km · frete ${money(fee)}. A loja confirma antes do preparo.`;
+    updateCart();
+  } catch (error) {
+    deliveryEstimate = null;
+    status.textContent = `${error.message} Tente novamente ou combine o frete pelo WhatsApp.`;
+    updateCart();
+  } finally {
+    button.disabled = false;
+    button.textContent = "CALCULAR FRETE";
+  }
 }
 
 function makeTlv(tag, value){
@@ -166,7 +224,7 @@ function updatePaymentDetails(){
   document.querySelector("#payment-info").textContent = details[selected] || "O restaurante confirma a forma de pagamento. Nenhuma cobrança é feita neste site.";
   document.querySelector("#change-field").hidden = selected !== "Dinheiro";
   const subtotal = [...cart.entries()].reduce((sum, [id, count]) => sum + products.find(product => product.id === id).price * count, 0);
-  renderPixPayment(subtotal);
+  renderPixPayment(subtotal + (deliveryEstimate?.fee || 0));
   document.querySelectorAll(".payment-option").forEach(option => {
     option.classList.toggle("selected", option.querySelector("input").checked);
   });
@@ -264,6 +322,8 @@ document.querySelector("#close-cart").addEventListener("click", closeCart);
 cartBackdrop.addEventListener("click", closeCart);
 document.querySelector("#back-to-menu").addEventListener("click", closeCart);
 document.querySelector("#checkout-button").addEventListener("click", () => document.querySelector("#checkout-dialog").showModal());
+document.querySelector("#calculate-delivery").addEventListener("click", calculateDelivery);
+document.querySelector('[name="endereco"]').addEventListener("input", () => { deliveryEstimate = null; document.querySelector("#delivery-estimate-status").textContent = "Altere o endereço e calcule o frete novamente."; updateCart(); });
 document.querySelector("#close-checkout").addEventListener("click", () => document.querySelector("#checkout-dialog").close());
 document.querySelector("#checkout-dialog").addEventListener("click", event => { if (event.target === event.currentTarget) event.currentTarget.close(); });
 document.querySelector("#continue-shopping").addEventListener("click", closeCart);
@@ -303,6 +363,7 @@ document.querySelector("#copy-order").addEventListener("click", async () => {
 document.querySelector("#checkout-form").addEventListener("submit", event => {
   event.preventDefault();
   if (!cart.size) return;
+  if (!deliveryEstimate || deliveryEstimate.address !== document.querySelector('[name="endereco"]').value.trim()) { document.querySelector("#delivery-estimate-status").textContent = "Calcule o frete para este endereço antes de enviar o pedido."; showToast("Calcule o frete antes de continuar."); return; }
   const data = new FormData(event.currentTarget);
   const lines = [...cart.entries()].map(([id, count]) => {
     const product = products.find(item => item.id === id);
@@ -310,8 +371,9 @@ document.querySelector("#checkout-form").addEventListener("submit", event => {
   });
   const subtotal = [...cart.entries()].reduce((sum, [id, count]) => sum + products.find(item => item.id === id).price * count, 0);
   const payment = data.get("pagamento");
+  const total = subtotal + deliveryEstimate.fee;
   const change = payment === "Dinheiro" && data.get("troco") ? `Troco para: R$ ${data.get("troco")}` : "";
-  const message = ["Olá! Quero fazer este pedido:", "", ...lines, "", `Subtotal dos itens: ${money(subtotal)}`, "Entrega: confirmar com o restaurante", `Nome: ${data.get("nome")}`, `Telefone: ${data.get("telefone")}`, `Endereço: ${data.get("endereco")}`, `Pagamento escolhido: ${payment}`, change, data.get("observacao") ? `Observação: ${data.get("observacao")}` : ""].filter(Boolean).join("\n");
+  const message = ["Olá! Quero fazer este pedido:", "", ...lines, "", `Subtotal dos itens: ${money(subtotal)}`, `Frete estimado (${deliveryEstimate.distanceKm.toLocaleString("pt-BR", {maximumFractionDigits:1})} km): ${money(deliveryEstimate.fee)}`, `Total estimado: ${money(total)}`, `Nome: ${data.get("nome")}`, `Telefone: ${data.get("telefone")}`, `Endereço: ${data.get("endereco")}`, `Pagamento escolhido: ${payment}`, change, data.get("observacao") ? `Observação: ${data.get("observacao")}` : ""].filter(Boolean).join("\n");
   const channel = event.submitter?.value;
   if (channel === "whatsapp" && /^\d{12,13}$/.test(STORE_WHATSAPP)) {
     window.open(`https://wa.me/${STORE_WHATSAPP}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
