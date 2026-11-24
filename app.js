@@ -15,7 +15,14 @@ const products = [
 ];
 
 const money = value => value.toLocaleString("pt-BR", {style:"currency",currency:"BRL"});
-const cart = new Map();
+let savedCart = [];
+try {
+  const stored = JSON.parse(localStorage.getItem("monster-burguer-sacola") || "[]");
+  if (Array.isArray(stored)) savedCart = stored.filter(([id, count]) => products.some(product => product.id === id) && Number.isInteger(count) && count > 0);
+} catch {
+  savedCart = [];
+}
+const cart = new Map(savedCart);
 let selectedCategory = "Todos";
 let searchTerm = "";
 const menuGrid = document.querySelector("#menu-grid");
@@ -37,6 +44,7 @@ function renderProducts(){
 
 function updateCart(){
   const entries = [...cart.entries()];
+  try { localStorage.setItem("monster-burguer-sacola", JSON.stringify(entries)); } catch { /* Sacola continua funcionando nesta visita. */ }
   const quantity = entries.reduce((sum, [, count]) => sum + count, 0);
   const subtotal = entries.reduce((sum, [id, count]) => sum + products.find(product => product.id === id).price * count, 0);
   document.querySelector("#cart-count").textContent = quantity;
@@ -129,6 +137,14 @@ document.querySelector("#checkout-form").addEventListener("submit", event => {
   const subtotal = [...cart.entries()].reduce((sum, [id, count]) => sum + products.find(item => item.id === id).price * count, 0);
   const message = ["Olá! Quero fazer este pedido:", "", ...lines, "", `Subtotal dos itens: ${money(subtotal)}`, `Nome: ${data.get("nome")}`, `Telefone: ${data.get("telefone")}`, `Endereço: ${data.get("endereco")}`, `Pagamento: ${data.get("pagamento")}`, data.get("observacao") ? `Observação: ${data.get("observacao")}` : ""].filter(Boolean).join("\n");
   window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+});
+
+document.querySelector('[name="telefone"]').addEventListener("input", event => {
+  const digits = event.target.value.replace(/\D/g, "").slice(0, 11);
+  if (digits.length <= 2) event.target.value = digits ? `(${digits}` : "";
+  else if (digits.length <= 6) event.target.value = `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  else if (digits.length <= 10) event.target.value = `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  else event.target.value = `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
 });
 
 document.querySelector("#menu-toggle").addEventListener("click", event => {
