@@ -30,6 +30,7 @@ const categoryRow = document.querySelector("#category-row");
 const cartPanel = document.querySelector("#cart-panel");
 const cartBackdrop = document.querySelector("#cart-backdrop");
 const toast = document.querySelector("#toast");
+let lastCartQuantity = 0;
 
 function renderCategories(){
   const categories = ["Todos", ...new Set(products.map(product => product.category))];
@@ -40,6 +41,19 @@ function renderProducts(){
   const visible = products.filter(product => (selectedCategory === "Todos" || product.category === selectedCategory) && `${product.name} ${product.description} ${product.category}`.toLocaleLowerCase("pt-BR").includes(searchTerm));
   menuGrid.innerHTML = visible.map(product => `<article class="product-card"><div class="product-image" style="background-image:url('${product.image}')" role="img" aria-label="${product.name}"><span class="product-badge">${product.badge}</span></div><div class="product-body"><div class="product-title-line"><h3 class="product-title">${product.name}</h3><span class="product-price">${money(product.price)}</span></div><p class="product-description">${product.description}</p><div class="product-foot"><span class="product-time">Feito na hora</span><button class="add-button" type="button" data-add="${product.id}">+ ADICIONAR</button></div></div></article>`).join("");
   document.querySelector("#empty-state").hidden = visible.length > 0;
+  if ("IntersectionObserver" in window && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-visible");
+        observer.unobserve(entry.target);
+      });
+    }, {threshold: 0.12});
+    menuGrid.querySelectorAll(".product-card").forEach(card => {
+      card.classList.add("reveal");
+      observer.observe(card);
+    });
+  }
 }
 
 function updateCart(){
@@ -47,7 +61,14 @@ function updateCart(){
   try { localStorage.setItem("monster-burguer-sacola", JSON.stringify(entries)); } catch { /* Sacola continua funcionando nesta visita. */ }
   const quantity = entries.reduce((sum, [, count]) => sum + count, 0);
   const subtotal = entries.reduce((sum, [id, count]) => sum + products.find(product => product.id === id).price * count, 0);
-  document.querySelector("#cart-count").textContent = quantity;
+  const cartCount = document.querySelector("#cart-count");
+  cartCount.textContent = quantity;
+  if (quantity > lastCartQuantity && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    cartCount.classList.remove("bump");
+    void cartCount.offsetWidth;
+    cartCount.classList.add("bump");
+  }
+  lastCartQuantity = quantity;
   document.querySelector("#cart-items").innerHTML = entries.map(([id, count]) => {
     const product = products.find(item => item.id === id);
     return `<div class="cart-line"><div><h3>${product.name}</h3><div class="cart-line-sub">${money(product.price)} cada</div></div><b class="cart-line-price">${money(product.price * count)}</b><div class="quantity-control"><button type="button" aria-label="Remover um ${product.name}" data-change="${id}" data-delta="-1">−</button><span>${count}</span><button type="button" aria-label="Adicionar um ${product.name}" data-change="${id}" data-delta="1">+</button></div></div>`;
@@ -97,6 +118,13 @@ menuGrid.addEventListener("click", event => {
   const id = button.dataset.add;
   cart.set(id, (cart.get(id) || 0) + 1);
   updateCart();
+  button.classList.add("added");
+  button.textContent = "✓ ADICIONADO";
+  window.setTimeout(() => {
+    if (!button.isConnected) return;
+    button.classList.remove("added");
+    button.textContent = "+ ADICIONAR";
+  }, 1100);
   showToast(`${products.find(product => product.id === id).name} adicionado à sacola`);
 });
 
@@ -152,6 +180,16 @@ document.querySelector("#menu-toggle").addEventListener("click", event => {
   const nav = document.querySelector(".main-nav");
   const isOpen = nav.classList.toggle("open");
   button.setAttribute("aria-expanded", String(isOpen));
+});
+const heroBurger = document.querySelector("#hero-burger");
+function animateHeroBurger(){
+  heroBurger.classList.remove("bite");
+  void heroBurger.offsetWidth;
+  heroBurger.classList.add("bite");
+}
+heroBurger.addEventListener("click", animateHeroBurger);
+heroBurger.addEventListener("animationend", event => {
+  if (event.animationName === "monster-bite") heroBurger.classList.remove("bite");
 });
 document.querySelectorAll(".main-nav a").forEach(link => link.addEventListener("click", () => {
   document.querySelector(".main-nav").classList.remove("open");
