@@ -12,6 +12,6 @@ Os itens, categorias, descrições, preços e imagens de demonstração ficam no
 
 ## Situação desta versão
 
-Esta é a primeira versão visual/interativa: busca, filtros, sacola, seleção de Pix/cartão/dinheiro e formulário funcionam no navegador. Com os contatos configurados, o pedido abre uma mensagem pronta para enviar por WhatsApp ou e-mail. Sem contatos, o site mostra uma prévia copiável para demonstração. A escolha de pagamento é enviada como preferência; não há cobrança online. Ainda não inclui banco de dados, autenticação administrativa ou painel de pedidos compartilhado entre dispositivos; esses recursos precisam de um backend antes de operar como loja real.
+Esta é a primeira versão visual/interativa: busca, filtros, sacola e formulário funcionam no navegador. O Pix de demonstração monta localmente um BR Code com o valor dos itens, QR e Copia e Cola; a chave CPF deve ser substituída pela chave comercial correta antes de publicar. O QR pode receber dinheiro real, mas o site não verifica o pagamento nem confirma o pedido. Com o contato configurado, o pedido também pode ser encaminhado ao WhatsApp. Ainda não inclui banco de dados, autenticação administrativa ou painel de pedidos compartilhado entre dispositivos; esses recursos e um provedor de pagamento com confirmação via webhook são necessários para operar como loja real.
 
 As fotos atuais são imagens remotas de demonstração. Substitua-as por fotos autorizadas do restaurante antes de publicar a versão comercial.

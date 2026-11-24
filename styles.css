@@ -83,3 +83,20 @@
 .preview-actions{display:flex;flex-direction:column;gap:5px}
 .preview-actions .button{width:100%}
 @media(max-width:480px){.cart-line{grid-template-columns:46px minmax(0,1fr) auto;column-gap:9px}.cart-thumb{width:46px;height:46px}.cart-product h3{font-size:17px}.payment-options{gap:6px}.payment-option{padding:9px 7px;min-height:86px}.payment-copy small{font-size:7px}.preview-card{padding:26px 20px}}
+.pix-payment-box{padding:13px;border:1px solid #f0d2b9;border-radius:8px;background:#fffaf5}
+.pix-demo-warning{display:flex;flex-direction:column;gap:4px;padding:10px;border-left:3px solid #e49b34;border-radius:3px;background:#fff2dc;color:#714d18}
+.pix-demo-warning b{font-size:10px}
+.pix-demo-warning span{font-size:9px;line-height:1.45}
+.pix-content{display:grid;grid-template-columns:130px minmax(0,1fr);gap:13px;align-items:center;margin-top:13px}
+.pix-qr-code{min-height:130px;width:130px;border:1px solid #eee8e0;border-radius:6px;background:white;display:grid;place-items:center;padding:6px;color:#857a6f;text-align:center;font-size:8px;line-height:1.4;overflow:hidden}
+.pix-qr-code img,.pix-qr-code canvas{display:block;width:100%;height:auto;max-width:118px;max-height:118px}
+.pix-details{min-width:0;display:flex;flex-direction:column;gap:6px}
+.pix-amount-label{font-size:8px;font-weight:800;letter-spacing:.1em;color:var(--muted)}
+.pix-details>strong{font:600 22px var(--heading);color:var(--ink)}
+.pix-details>label{margin-top:3px;font-size:8px;font-weight:800}
+#pix-copy-code{width:100%;min-height:49px;padding:6px;border:1px solid var(--line);border-radius:4px;background:white;color:#655d55;font:8px/1.35 monospace;resize:vertical;overflow-wrap:anywhere;word-break:break-all}
+.copy-pix-button{min-height:33px;border:0;border-radius:4px;background:#188768;color:white;display:flex;align-items:center;justify-content:center;gap:6px;font-size:8px;font-weight:800;cursor:pointer}
+.copy-pix-button:hover{background:#116b52}
+.copy-pix-button svg{height:15px;width:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pix-pending-note{margin:10px 0 0;color:#8b6b40;font-size:8px;line-height:1.45}
+@media(max-width:420px){.pix-payment-box{padding:10px}.pix-content{grid-template-columns:1fr;justify-items:center}.pix-details{width:100%}.pix-qr-code{width:154px;height:154px}.pix-qr-code img,.pix-qr-code canvas{max-width:142px;max-height:142px}}

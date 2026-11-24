@@ -3,6 +3,9 @@
 // WhatsApp: somente números, com DDI e DDD (ex.: 5585999999999).
 const STORE_WHATSAPP = "5581989071780";
 const STORE_EMAIL = "";
+const PIX_KEY = "12781011444";
+const PIX_RECEIVER_NAME = "MONSTER BURGUER";
+const PIX_RECEIVER_CITY = "BRASIL";
 
 const products = [
   {id:"classico",name:"Monster Clássico",category:"Hambúrgueres",price:29.90,description:"Pão brioche, burger 180g, queijo cheddar, alface, tomate e molho da casa.",badge:"O QUERIDINHO",image:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=82"},
@@ -79,17 +82,80 @@ function updateCart(){
   document.querySelector("#cart-bottom").hidden = quantity === 0;
   document.querySelector("#cart-subtotal").textContent = money(subtotal);
   document.querySelector("#checkout-total").textContent = money(subtotal);
+  if (document.querySelector('[name="pagamento"]:checked')?.value === "Pix") renderPixPayment(subtotal);
+}
+
+function makeTlv(tag, value){
+  return `${tag}${String(value.length).padStart(2, "0")}${value}`;
+}
+
+function pixCrc16(payload){
+  let crc = 0xffff;
+  for (let index = 0; index < payload.length; index += 1) {
+    crc ^= payload.charCodeAt(index) << 8;
+    for (let bit = 0; bit < 8; bit += 1) {
+      crc = crc & 0x8000 ? (crc << 1) ^ 0x1021 : crc << 1;
+      crc &= 0xffff;
+    }
+  }
+  return crc.toString(16).toUpperCase().padStart(4, "0");
+}
+
+function makePixPayload(amount){
+  const merchantAccount = makeTlv("00", "BR.GOV.BCB.PIX") + makeTlv("01", PIX_KEY);
+  const additionalData = makeTlv("05", "***");
+  const payload = [
+    makeTlv("00", "01"),
+    makeTlv("01", "11"),
+    makeTlv("26", merchantAccount),
+    makeTlv("52", "0000"),
+    makeTlv("53", "986"),
+    makeTlv("54", amount.toFixed(2)),
+    makeTlv("58", "BR"),
+    makeTlv("59", PIX_RECEIVER_NAME),
+    makeTlv("60", PIX_RECEIVER_CITY),
+    makeTlv("62", additionalData),
+    "6304"
+  ].join("");
+  return payload + pixCrc16(payload);
+}
+
+function renderPixPayment(subtotal){
+  const box = document.querySelector("#pix-payment-box");
+  const isPix = document.querySelector('[name="pagamento"]:checked')?.value === "Pix";
+  box.hidden = !isPix;
+  if (!isPix || subtotal <= 0) return;
+
+  const payload = makePixPayload(subtotal);
+  document.querySelector("#pix-amount").textContent = money(subtotal);
+  document.querySelector("#pix-copy-code").value = payload;
+  const qrContainer = document.querySelector("#pix-qr-code");
+  qrContainer.replaceChildren();
+  if (window.QRCode) {
+    new window.QRCode(qrContainer, {
+      text: payload,
+      width: 190,
+      height: 190,
+      colorDark: "#191613",
+      colorLight: "#ffffff",
+      correctLevel: window.QRCode.CorrectLevel.M
+    });
+  } else {
+    qrContainer.textContent = "Não foi possível carregar o QR Code. Use o código Pix Copia e Cola abaixo.";
+  }
 }
 
 function updatePaymentDetails(){
   const selected = document.querySelector('[name="pagamento"]:checked')?.value;
   const details = {
-    Pix: "A chave Pix será informada pelo restaurante após confirmar o pedido. Este site não cobra online.",
+    Pix: "QR Code de demonstração criado com a chave CPF informada. O site não acompanha nem confirma o pagamento.",
     "Cartão na entrega": "Confirme com a loja se a maquininha está disponível para seu endereço.",
     Dinheiro: "O pagamento será feito na entrega. Se precisar de troco, informe o valor abaixo."
   };
   document.querySelector("#payment-info").textContent = details[selected] || "O restaurante confirma a forma de pagamento. Nenhuma cobrança é feita neste site.";
   document.querySelector("#change-field").hidden = selected !== "Dinheiro";
+  const subtotal = [...cart.entries()].reduce((sum, [id, count]) => sum + products.find(product => product.id === id).price * count, 0);
+  renderPixPayment(subtotal);
   document.querySelectorAll(".payment-option").forEach(option => {
     option.classList.toggle("selected", option.querySelector("input").checked);
   });
@@ -194,6 +260,17 @@ document.querySelectorAll('[name="pagamento"]').forEach(option => option.addEven
 document.querySelector("#close-preview").addEventListener("click", () => document.querySelector("#order-preview-dialog").close());
 document.querySelector("#close-preview-secondary").addEventListener("click", () => document.querySelector("#order-preview-dialog").close());
 document.querySelector("#order-preview-dialog").addEventListener("click", event => { if (event.target === event.currentTarget) event.currentTarget.close(); });
+document.querySelector("#copy-pix-code").addEventListener("click", async () => {
+  const code = document.querySelector("#pix-copy-code");
+  try {
+    await navigator.clipboard.writeText(code.value);
+  } catch {
+    code.focus();
+    code.select();
+    document.execCommand("copy");
+  }
+  showToast("Código Pix copiado.");
+});
 document.querySelector("#copy-order").addEventListener("click", async () => {
   const text = document.querySelector("#order-preview-text").textContent;
   try {
