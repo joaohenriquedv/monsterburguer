@@ -6,14 +6,15 @@ const STORE_EMAIL = "";
 const PIX_KEY = "12781011444";
 const PIX_RECEIVER_NAME = "MONSTER BURGUER";
 const PIX_RECEIVER_CITY = "BRASIL";
+const FALLBACK_BURGER_IMAGE = "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=82";
 
 const products = [
   {id:"classico",name:"Monster Clássico",category:"Hambúrgueres",price:29.90,description:"Pão brioche, burger 180g, queijo cheddar, alface, tomate e molho da casa.",badge:"O QUERIDINHO",image:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=82"},
-  {id:"duplo",name:"Duplo Monstro",category:"Hambúrgueres",price:38.90,description:"Dois burgers  smash, cheddar em dobro, cebola caramelizada e molho especial.",badge:"BEM SERVIDO",image:"https://images.unsplash.com/photo-1553979459-d2229ba7433a?auto=format&fit=crop&w=900&q=82"},
-  {id:"bacon",name:"Bacon Brabo",category:"Hambúrgueres",price:34.90,description:"Burger 180g, cheddar, bacon crocante, picles e maionese defumada.",badge:"MAIS PEDIDO",image:"https://images.unsplash.com/photo-1553979459-d2229ba7433a?auto=format&fit=crop&w=900&q=82"},
+  {id:"duplo",name:"Duplo Monstro",category:"Hambúrgueres",price:38.90,description:"Dois burgers  smash, cheddar em dobro, cebola caramelizada e molho especial.",badge:"BEM SERVIDO",image:FALLBACK_BURGER_IMAGE},
+  {id:"bacon",name:"Bacon Brabo",category:"Hambúrgueres",price:34.90,description:"Burger 180g, cheddar, bacon crocante, picles e maionese defumada.",badge:"MAIS PEDIDO",image:FALLBACK_BURGER_IMAGE},
   {id:"crispy",name:"Crispy Chicken",category:"Hambúrgueres",price:31.90,description:"Frango crocante, queijo, coleslaw fresquinha e molho levemente picante.",badge:"CROCANTE",image:"https://images.unsplash.com/photo-1606755962773-d324e0a13086?auto=format&fit=crop&w=900&q=82"},
   {id:"fritas",name:"Fritas da Casa",category:"Acompanhamentos",price:14.90,description:"Porção dourada e crocante, com sal da casa. Boa para dividir (ou não).",badge:"ACOMPANHA TUDO",image:"https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=900&q=82"},
-  {id:"onion",name:"Onion Rings",category:"Acompanhamentos",price:17.90,description:"Anéis de cebola empanados, sequinhos e servidos com molho especial.",badge:"CROCÂNCIA",image:"https://images.unsplash.com/photo-1639024471283-03518883512d?auto=format&fit=crop&w=900&q=82"},
+  {id:"onion",name:"Onion Rings",category:"Acompanhamentos",price:17.90,description:"Anéis de cebola empanados, sequinhos e servidos com molho especial.",badge:"CROCÂNCIA",image:FALLBACK_BURGER_IMAGE},
   {id:"refri",name:"Refrigerante",category:"Bebidas",price:7.00,description:"Lata gelada 350ml. Escolha seu sabor na observação do pedido.",badge:"BEM GELADO",image:"https://images.unsplash.com/photo-1629203851122-3726ecdf080e?auto=format&fit=crop&w=900&q=82"},
   {id:"milkshake",name:"Milk-shake",category:"Bebidas",price:18.90,description:"Cremoso, feito na hora. Consulte os sabores disponíveis.",badge:"CREMOSO",image:"https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=900&q=82"},
   {id:"combo",name:"Combo Monster",category:"Combos",price:45.90,description:"Monster Clássico, fritas da casa e refrigerante lata. O trio perfeito.",badge:"COMBO",image:"https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=900&q=82"}
@@ -47,7 +48,14 @@ function renderProducts(){
   menuGrid.innerHTML = visible.map(product => `<article class="product-card"><div class="product-image"><img class="product-photo" src="${product.image}" alt="${product.name}" loading="lazy"><span class="product-badge">${product.badge}</span></div><div class="product-body"><div class="product-title-line"><h3 class="product-title">${product.name}</h3><span class="product-price">${money(product.price)}</span></div><p class="product-description">${product.description}</p><div class="product-foot"><span class="product-time">Feito na hora</span><button class="add-button" type="button" data-add="${product.id}">+ ADICIONAR</button></div></div></article>`).join("");
   document.querySelector("#empty-state").hidden = visible.length > 0;
   menuGrid.querySelectorAll(".product-photo").forEach(image => {
-    image.addEventListener("error", () => image.closest(".product-image").classList.add("image-fallback"), {once: true});
+    image.addEventListener("error", () => {
+      if (image.dataset.fallbackApplied !== "true") {
+        image.dataset.fallbackApplied = "true";
+        image.src = FALLBACK_BURGER_IMAGE;
+      } else {
+        image.closest(".product-image").classList.add("image-fallback");
+      }
+    });
   });
   if ("IntersectionObserver" in window && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     const observer = new IntersectionObserver(entries => {
