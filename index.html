@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#171310" />
+    <meta name="description" content="Monster Burguer: hambúrgueres artesanais, combos e muito sabor. Peça o seu!" />
+    <title>Monster Burguer | Seu próximo favorito</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <div class="announcement"><span class="status-dot"></span> PEDIDOS ABERTOS <span class="announcement-sep">•</span> Peça pelo site e mate a fome</div>
+    <header class="site-header">
+      <a class="brand" href="#inicio" aria-label="Monster Burguer, início"><span class="brand-mark">M</span><span class="brand-name">MONSTER<span>BURGUER</span></span></a>
+      <nav class="main-nav" aria-label="Navegação principal">
+        <a href="#cardapio">Cardápio</a><a href="#sobre">A casa</a><a href="#entrega">Entrega</a>
+      </nav>
+      <div class="header-actions">
+        <a class="header-phone" href="#entrega"><span class="phone-icon">↗</span> Peça agora</a>
+        <button class="cart-trigger" id="open-cart" type="button" aria-label="Abrir carrinho"><span class="bag-icon">▱</span><span class="cart-trigger-label">Sacola</span><span class="cart-count" id="cart-count">0</span></button>
+        <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false"><span></span><span></span></button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" id="inicio">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="eyebrow-line"></span> HAMBÚRGUER DE VERDADE</div>
+          <h1>FOME DE<br /><span>ALGO GIGANTE?</span></h1>
+          <p>Pão macio, carne suculenta e ingredientes de respeito. O Monster é pra quem leva hambúrguer a sério.</p>
+          <div class="hero-actions"><a class="button button-primary" href="#cardapio">ESCOLHA O SEU <span>↓</span></a><div class="rating"><span class="stars">★★★★★</span><span><b>4,9</b> · feito com vontade</span></div></div>
+          <div class="hero-stamp"><span>100%</span><small>FEITO NA<br />HORA</small></div>
+        </div>
+        <div class="hero-art" role="img" aria-label="Hambúrguer artesanal com queijo e salada"><div class="hero-glow"></div><div class="hero-image"></div><div class="hero-tag"><span>O MONSTRO</span><b>DA CASA</b></div><div class="hero-scribble">MORDIDA<br />MONSTRA!</div></div>
+        <div class="hero-bottom"><span>INGREDIENTES FRESCOS</span><span>·</span><span>CARNE 180G</span><span>·</span><span>SEM MISÉRIA</span></div>
+      </section>
+
+      <section class="menu-section" id="cardapio">
+        <div class="section-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span> ESCOLHA SUA PRÓXIMA MORDIDA</div><h2>O CARDÁPIO<span>.</span></h2></div><label class="search-box"><span aria-hidden="true">⌕</span><input id="search-input" type="search" placeholder="Buscar no cardápio" aria-label="Buscar no cardápio" /></label></div>
+        <div class="category-row" id="category-row" role="tablist" aria-label="Categorias do cardápio"></div>
+        <div class="menu-grid" id="menu-grid" aria-live="polite"></div>
+        <div class="empty-state" id="empty-state" hidden>Nenhum item encontrado. Tente outra busca.</div>
+      </section>
+
+      <section class="manifesto" id="sobre"><div class="manifesto-mark">M</div><div><div class="eyebrow"><span class="eyebrow-line"></span> NÃO É SÓ UM LANCHE</div><h2>É A SUA FOME<br />PEDINDO <span>RESPEITO.</span></h2></div><p>A gente acredita que hambúrguer bom não precisa de frescura. Precisa de ingrediente bom, chapa quente e vontade de fazer direito. O resto é conversa.</p></section>
+
+      <section class="delivery-section" id="entrega"><div class="delivery-icon">⌖</div><div><div class="eyebrow"><span class="eyebrow-line"></span> CHEGA AÍ</div><h2>SEU MONSTER<br />VAI ATÉ VOCÊ.</h2><p>Consulte a disponibilidade de entrega e o tempo estimado ao finalizar seu pedido.</p></div><a class="button button-light" href="#cardapio">MONTAR PEDIDO <span>↗</span></a></section>
+    </main>
+
+    <footer class="site-footer"><a class="brand brand-footer" href="#inicio"><span class="brand-mark">M</span><span class="brand-name">MONSTER<span>BURGUER</span></span></a><p>Feito na chapa. Feito pra você.</p><span class="footer-copy">© <span id="year"></span> MONSTER BURGUER</span></footer>
+
+    <div class="cart-backdrop" id="cart-backdrop" hidden></div>
+    <aside class="cart-panel" id="cart-panel" aria-label="Sua sacola" aria-hidden="true">
+      <div class="cart-head"><div><span class="eyebrow">SEU PEDIDO</span><h2>SACOLA<span>.</span></h2></div><button class="icon-button" id="close-cart" type="button" aria-label="Fechar sacola">×</button></div>
+      <div class="cart-items" id="cart-items"></div>
+      <div class="cart-empty" id="cart-empty"><div class="empty-burger">🍔</div><b>Sua sacola está vazia</b><span>Escolha um Monster do cardápio.</span><button class="button button-primary" id="back-to-menu" type="button">VER CARDÁPIO</button></div>
+      <div class="cart-bottom" id="cart-bottom" hidden><div class="subtotal-line"><span>Subtotal</span><b id="cart-subtotal">R$ 0,00</b></div><p class="delivery-note">Entrega calculada pelo restaurante na confirmação.</p><button class="button button-primary checkout-button" id="checkout-button" type="button">CONTINUAR PEDIDO <span>→</span></button></div>
+    </aside>
+
+    <dialog class="checkout-dialog" id="checkout-dialog">
+      <form id="checkout-form" class="checkout-form">
+        <div class="dialog-head"><div><span class="eyebrow">SÓ MAIS UM PASSO</span><h2>SEUS DADOS<span>.</span></h2></div><button class="icon-button" id="close-checkout" type="button" aria-label="Fechar">×</button></div>
+        <label>Seu nome<input name="nome" autocomplete="name" required maxlength="70" placeholder="Como podemos te chamar?" /></label>
+        <label>Telefone<input name="telefone" type="tel" autocomplete="tel" required maxlength="20" placeholder="(00) 00000-0000" /></label>
+        <label>Endereço de entrega<textarea name="endereco" autocomplete="street-address" required maxlength="180" rows="2" placeholder="Rua, número, bairro e complemento"></textarea></label>
+        <label>Forma de pagamento<select name="pagamento" required><option value="">Selecione</option><option>Pix</option><option>Cartão na entrega</option><option>Dinheiro</option></select></label>
+        <label>Observação <span class="optional">(opcional)</span><textarea name="observacao" maxlength="180" rows="2" placeholder="Ponto da carne, sem cebola…"></textarea></label>
+        <div class="checkout-total"><span>Total dos itens</span><b id="checkout-total">R$ 0,00</b></div>
+        <p class="checkout-notice">Seu pedido será enviado ao restaurante para confirmação. A taxa de entrega e o prazo serão confirmados por lá.</p>
+        <button class="button button-primary checkout-button" type="submit">ENVIAR PEDIDO <span>↗</span></button>
+      </form>
+    </dialog>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
